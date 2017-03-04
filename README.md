@@ -54,9 +54,21 @@ Retrieves a clone of the HTML file at `templateURL`, injects data into it, and i
 ___
 ## Options
 Several options are available for use in the `options` object.
-### data:
-### append
-### prepend
+
+Option|DataType|Description
+---|---|---
+`data`|Object|An object with named properties matching tags in a template.
+`append`|Boolean|Appends the children of the destination element with the template.
+`prepend`|Boolean|Prepends the children of the destination element with the template.
+`beforeInsert`|Function|The Callback to execute before inserting the template.
+`afterInsert`|Function|The Callback to execute after inserting the template.
+`complete`|Function|The Callback to execute after finishing execution. (Non-conditional)
+`success`|Function|The Callback to execute if template loading was successful.
+`error`|Function|The Callback to execute if template loading was not successful. Errors output into the destination element if not set.
+`errorMessage`|String|The error message to output into the destination element. (Not used if `error` is set)
+`paged`|Boolean|Enables pagination.
+`pageNo`|Number|The page number to start at.
+`elemPerPage`|Number|The number of elements to include per-page.
 
 ## Data Binding Attributes
 
