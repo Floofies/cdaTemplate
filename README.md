@@ -68,7 +68,7 @@ This example shows usage of an in-document template in a `<script>` tag.
 ```
 ##### In-Document Destination Element:
 ```HTML
-<div id="myContainer></div>
+<div id="myContainer"></div>
 ```
 ##### JavaScript:
 ```JavaScript
@@ -90,7 +90,7 @@ This example shows usage of a remote template retreived via AJAX.
 ```
 ##### In-Document Destination Element:
 ```HTML
-<div id="myContainer></div>
+<div id="myContainer"></div>
 ```
 ##### JavaScript:
 ```JavaScript
