@@ -71,6 +71,25 @@ Option|DataType|Description
 `elemPerPage`|Number|The number of elements to include per-page.
 
 ## Data Binding Attributes
+Several data binding attributes are available for use in templates.
+
+Attribute|Description
+---|---
+`data-alt`|Sets the `alt` attribute of the element.
+`data-class`|Sets the `class` attribute of the element.
+`data-content`|Inserts the data into the element as document nodes.
+`data-content-append`|Appends the data to the element's children as document nodes.
+`data-content-prepend`|Appends the data to the element's children as document nodes.
+`data-content-text`| Inserts data into the element as a text node.
+`data-content-text-append`| Appends the data to the element's children as a text node.
+`data-content-text-prepend`| Prepends the data to the element's children as a text node.
+`data-for`|Sets the `for` attribute of the element.
+`data-href`|Sets the `href` attribute of the element.
+`data-id`|Sets the `id` attribute of the element.
+`data-link`|Inserts an `<a>` tag into the element's contents and sets it's `href` attribute.
+`data-link-wrap`|Wraps the element in an `<a>` tag and sets it's `href` attribute.
+`data-style`|Sets the `style` attribute of the element.
+`data-value`|Sets the `value` attribute of the element.
 
 ## Examples
 <details><summary>Basic Example - In-Document `<script>` Template</summary>
