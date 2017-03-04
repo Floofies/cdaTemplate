@@ -7,6 +7,7 @@ You may load templates either from the contents of `<script>` tags present in th
 
 You are provided with two interfaces for doing so: `loadTemplate` and `loadTemplateXhr`.
 ## Methods
+___
 ###`loadTemplate`
 ######Function
 ```JavaScript
@@ -28,6 +29,7 @@ Clones the contents of the `templateID` element, injects data into it, and inser
 
   See [Options Documentation]()
 
+___
 ###`loadTemplateXhr`
 ######Function
 ```JavaScript
@@ -49,6 +51,7 @@ Retrieves a clone of the HTML file at `templateURL`, injects data into it, and i
 
   See [Options Documentation]()
 
+___
 ## Options
 Several options are available for use in the `options` object.
 ### data:
