@@ -78,7 +78,7 @@ cdaTemplate.loadTemplate("myTemplate", "myContainer", {
 ```
 ##### Result - Destination Element:
 ```HTML
-<div id="myContainer">Hello World!</div>
+<div id="myContainer"><div>Hello World!</div></div>
 ```
 </details>
 
@@ -100,6 +100,6 @@ cdaTemplate.loadTemplate("myTemplate", "myContainer", {
 ```
 ##### Result - Destination Element:
 ```HTML
-<div id="myContainer">Hello World!</div>
+<div id="myContainer"><div>Hello World!</div></div>
 ```
 </details>
