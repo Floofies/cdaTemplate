@@ -13,6 +13,8 @@ A template consists of HTML elements with [custom `data` attributes](#paperclip-
 ```
 You may load templates either from the contents of `<script>` tags present in the document body, or from the contents of HTML files loaded via AJAX.
 
+Templates are stored in an internal cache for fast re-use. If you make a change to a template and would like to overwrite the cached version, you can use the `overwriteCache` option.
+
 ## :bulb: Methods
 You are provided with two interfaces for loading templates: `loadTemplate` and `loadTemplateXhr`.
 ___
@@ -65,18 +67,19 @@ Several options are available for use in the `options` object.
 
 Option|DataType|Description
 ---|---|---
-`data`|Object|An object with named properties matching tags in a template.
 `append`|Boolean|Appends the children of the destination element with the template.
-`prepend`|Boolean|Prepends the children of the destination element with the template.
-`beforeInsert`|Function|The Callback to execute before inserting the template.
 `afterInsert`|Function|The Callback to execute after inserting the template.
+`beforeInsert`|Function|The Callback to execute before inserting the template.
 `complete`|Function|The Callback to execute after finishing execution. (Non-conditional)
-`success`|Function|The Callback to execute if template loading was successful.
+`data`|Object|An object with named properties matching tags in a template.
+`elemPerPage`|Number|The number of elements to include per-page.
 `error`|Function|The Callback to execute if template loading was not successful. Errors output into the destination element if not set.
 `errorMessage`|String|The error message to output into the destination element. (Not used if `error` is set)
+`overwriteCache`|Boolean|Forces a the template to load from it's original location instead of the cache.
 `paged`|Boolean|Enables pagination.
 `pageNo`|Number|The page number to start at.
-`elemPerPage`|Number|The number of elements to include per-page.
+`prepend`|Boolean|Prepends the children of the destination element with the template.
+`success`|Function|The Callback to execute if template loading was successful.
 
 ## :paperclip: Data Insertion Attributes
 Several one-way data insertion attributes are available for use in templates.
