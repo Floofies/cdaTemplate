@@ -9,7 +9,7 @@ A template consists of HTML elements with [custom `data` attributes](#paperclip-
 <div data-content-text="myTag"></div>
 
 <!-- Inserts an href attribute -->
-<div data-href="myTag"></div>
+<a data-href="myTag">This is a link!</a>
 ```
 You may load templates either from the contents of `<script>` tags present in the document body, or from the contents of HTML files loaded via AJAX.
 
