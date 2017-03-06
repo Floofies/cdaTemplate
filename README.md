@@ -1,5 +1,5 @@
-# WIP
 # cdaTemplate
+###### Custom Data Attribute Templating Engine
 This template engine was originally based off the concepts introduced by [jquery-template](https://github.com/codepb/jquery-template)
 
 # Documentation
@@ -70,8 +70,8 @@ Option|DataType|Description
 `pageNo`|Number|The page number to start at.
 `elemPerPage`|Number|The number of elements to include per-page.
 
-## Data Binding Attributes
-Several data binding attributes are available for use in templates.
+## Data Insertion Attributes
+Several one-way data insertion attributes are available for use in templates.
 
 Attribute|Description
 ---|---
@@ -86,8 +86,8 @@ Attribute|Description
 `data-for`|Sets the `for` attribute of the element.
 `data-href`|Sets the `href` attribute of the element.
 `data-id`|Sets the `id` attribute of the element.
-`data-link`|Inserts an `<a>` tag into the element's contents and sets it's `href` attribute.
-`data-link-wrap`|Wraps the element in an `<a>` tag and sets it's `href` attribute.
+`data-link`|Wraps the element's contents an `<a>` tag and sets it's `href` attribute.
+`data-link-wrap`|Wraps the entire element in an `<a>` tag and sets it's `href` attribute.
 `data-style`|Sets the `style` attribute of the element.
 `data-value`|Sets the `value` attribute of the element.
 
