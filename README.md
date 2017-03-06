@@ -16,7 +16,7 @@ You may load templates either from the contents of `<script>` tags present in th
 Templates are stored in an internal cache for fast re-use. If you make a change to a template and would like to overwrite the cached version, you can use the `overwriteCache` option.
 
 ## :bulb: Methods
-You are provided with two interfaces for loading templates: `loadTemplate` and `loadTemplateXhr`.
+You are provided with two interfaces for loading templates: `loadTemplate` and `loadTemplateXhr`. They can be accessed via the `cdaTemplate` namespace.
 ___
 ###`loadTemplate`
 ######Function
