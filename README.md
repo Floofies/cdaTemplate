@@ -3,7 +3,7 @@
 This template engine borrows several concepts from [jquery-template](https://github.com/codepb/jquery-template), and is very functionally similar.
 
 # :books: Documentation
-A template consists of HTML elements with [custom `data` attributes](#data-insertion-attributes). The attribute __name__ specifies how the data should be inserted, while the attribute __value__ specifies the object property to track; like so:
+A template consists of HTML elements with [custom `data` attributes](#paperclip-data-insertion-attributes). The attribute __name__ specifies how the data should be inserted, while the attribute __value__ specifies the object property to track; like so:
 ```HTML
 <!-- Inserts a Text Node -->
 <div data-content-text="myTag"></div>
@@ -35,7 +35,7 @@ Clones the contents of the `templateID` element, injects data into it, and inser
 
 - **`options`** Object
 
-  Accepts a range of configuration options. See [Options Documentation](#options)
+  Accepts a range of configuration options. See [Options Documentation](#wrench-options)
 
 ___
 ###`loadTemplateXhr`
@@ -57,7 +57,7 @@ Retrieves a clone of the HTML file at `templateURL`, injects data into it, and i
 
 - **`options`** Object
 
-  Accepts a range of configuration options. See [Options Documentation](#options)
+  Accepts a range of configuration options. See [Options Documentation](#wrench-options)
 
 ___
 ## :wrench: Options
