@@ -1,5 +1,5 @@
 "use strict";
-var templator = (function () {
+var cdaTemplate = (function () {
 
   function ajax (url = "/", resType = 'text', data = "") {
     return new Promise (function (resolve, reject) {
