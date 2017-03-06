@@ -1,12 +1,20 @@
 # cdaTemplate
 ###### Custom Data Attribute Templating Engine
-This template engine was originally based off the concepts introduced by [jquery-template](https://github.com/codepb/jquery-template)
+This template engine borrows several concepts from [jquery-template](https://github.com/codepb/jquery-template), and is very functionally similar.
 
-# Documentation
+# :books: Documentation
+A template consists of HTML elements with [custom `data` attributes](#data-insertion-attributes). The attribute __name__ specifies how the data should be inserted, while the attribute __value__ specifies the object property to track; like so:
+```HTML
+<!-- Inserts a Text Node -->
+<div data-content-text="myTag"></div>
+
+<!-- Inserts an href attribute -->
+<div data-href="myTag"></div>
+```
 You may load templates either from the contents of `<script>` tags present in the document body, or from the contents of HTML files loaded via AJAX.
 
-You are provided with two interfaces for doing so: `loadTemplate` and `loadTemplateXhr`.
-## Methods
+## :bulb: Methods
+You are provided with two interfaces for loading templates: `loadTemplate` and `loadTemplateXhr`.
 ___
 ###`loadTemplate`
 ######Function
@@ -27,7 +35,7 @@ Clones the contents of the `templateID` element, injects data into it, and inser
 
 - **`options`** Object
 
-  See [Options Documentation]()
+  Accepts a range of configuration options. See [Options Documentation](#options)
 
 ___
 ###`loadTemplateXhr`
@@ -49,10 +57,10 @@ Retrieves a clone of the HTML file at `templateURL`, injects data into it, and i
 
 - **`options`** Object
 
-  See [Options Documentation]()
+  Accepts a range of configuration options. See [Options Documentation](#options)
 
 ___
-## Options
+## :wrench: Options
 Several options are available for use in the `options` object.
 
 Option|DataType|Description
@@ -70,7 +78,7 @@ Option|DataType|Description
 `pageNo`|Number|The page number to start at.
 `elemPerPage`|Number|The number of elements to include per-page.
 
-## Data Insertion Attributes
+## :paperclip: Data Insertion Attributes
 Several one-way data insertion attributes are available for use in templates.
 
 Attribute|Description
@@ -91,7 +99,7 @@ Attribute|Description
 `data-style`|Sets the `style` attribute of the element.
 `data-value`|Sets the `value` attribute of the element.
 
-## Examples
+## :clipboard: Examples
 <details><summary>Basic Example - In-Document `<script>` Template</summary>
 This example shows usage of an in-document template in a `<script>` tag.
 ##### In-Document Template Element:
