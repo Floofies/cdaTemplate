@@ -25,7 +25,7 @@ cdaTemplate.loadTemplate( templateSelector , destinationSelector , options );
 ```
 Clones the contents of the element targeted by `templateSelector`, injects data into the clone, and inserts the clone into any elements targeted by `destinationSelector`. The two parameters must be valid CSS Selectors.
 
-If multiple elements match the Selector are on the page, you can enable insertion into multiple destinations via the `multiDest` option; otherwise, only the first element matching the Selector will receive the template.
+If multiple elements match `destinationSelector`, you can enable insertion into multiple destinations via the `multiDest` option; otherwise, only the first element matching the Selector will receive the template.
 
 ##### Parameters
 
@@ -47,7 +47,9 @@ ___
 ```JavaScript
 cdaTemplate.loadTemplateXhr( templateURL , destinationSelector , options );
 ```
-Retrieves a clone of the HTML file at `templateURL`, injects data into it, and inserts the clone into the `destinationID` element.
+Retrieves a clone of the HTML file at `templateURL`, injects data into it, and inserts the clone into any elements targeted by `destinationSelector`; which must be a valid CSS Selector.
+
+If multiple elements match `destinationSelector`, you can enable insertion into multiple destinations via the `multiDest` option; otherwise, only the first element matching the Selector will receive the template.
 
 ##### Parameters
 
