@@ -21,19 +21,21 @@ ___
 ###`loadTemplate`
 ######Function
 ```JavaScript
-cdaTemplate.loadTemplate( templateID , destinationID , options );
+cdaTemplate.loadTemplate( templateSelector , destinationSelector , options );
 ```
-Clones the contents of the `templateID` element, injects data into it, and inserts the clone into the `destinationID` element.
+Clones the contents of the element targeted by `templateSelector`, injects data into the clone, and inserts the clone into any elements targeted by `destinationSelector`. The two parameters must be valid CSS Selectors.
+
+If multiple elements match the Selector are on the page, you can enable insertion into multiple destinations via the `multiDest` option; otherwise, only the first element matching the Selector will receive the template.
 
 ##### Parameters
 
-- **`templateID`** String
+- **`templateSelector`** String
 
-  The ID Attribute of the template.
+  A valid CSS Selector targeting the template.
 
-- **`destinationID`** String
+- **`destinationSelector`** String
 
-  The ID Attribute of the destination.
+  A valid CSS Selector targeting one or more destinations.
 
 - **`options`** Object
 
@@ -43,7 +45,7 @@ ___
 ###`loadTemplateXhr`
 ######Function
 ```JavaScript
-cdaTemplate.loadTemplateXhr( templateURL , destinationID , options );
+cdaTemplate.loadTemplateXhr( templateURL , destinationSelector , options );
 ```
 Retrieves a clone of the HTML file at `templateURL`, injects data into it, and inserts the clone into the `destinationID` element.
 
@@ -53,9 +55,9 @@ Retrieves a clone of the HTML file at `templateURL`, injects data into it, and i
 
   The URL of the template HTML file.
 
-- **`destinationID`** String
+- **`destinationSelector`** String
 
-  The ID Attribute of the destination.
+  A valid CSS Selector targeting one or more destinations.
 
 - **`options`** Object
 
@@ -117,7 +119,7 @@ This example shows usage of an in-document template in a `<script>` tag.
 ```
 ##### JavaScript:
 ```JavaScript
-cdaTemplate.loadTemplate("myTemplate", "myContainer", {
+cdaTemplate.loadTemplate("#myTemplate", "#myContainer", {
     data: { myTag: "Hello World!" }
 });
 ```
@@ -140,7 +142,7 @@ This example shows usage of a remote template retreived via AJAX.
 ```
 ##### JavaScript:
 ```JavaScript
-cdaTemplate.loadTemplate("/myTemplate.html", "myContainer", {
+cdaTemplate.loadTemplate("/myTemplate.html", "#myContainer", {
     data: { myTag: "Hello World!" }
 });
 ```

@@ -130,6 +130,7 @@ var cdaTemplate = (function () {
   // The default options/conf Object
   var defaultSettings = {
     data: false,
+    multiDest: false,
     append: false,
     prepend: false,
     isFile: false,
@@ -146,33 +147,44 @@ var cdaTemplate = (function () {
   };
 
   // Insert a Prepared Template into destElem
-  function insertTemplate (templDoc, destElem, conf) {
+  function insertTemplate (templDoc, destElems, conf) {
     // Before insertion Callback
     conf.beforeInsert();
     // Insert the Template into destElement
     if (templDoc.hasChildNodes()) {
       var ok = true;
-      console.log("Inserting Template into DOM");
-      if (conf.append) {
-        // Append the destination's children
-        ok = destElem.appendChild(templDoc);
-      } else if (conf.prepend) {
-        // Prepend the destination's children
-        ok = destElem.insertBefore(templDoc, destElem.firstChild);
+      var insertionQueue = [];
+      if (conf.multiDest) {
+        for (var destElem of destElems.values()) {
+          insertionQueue.push(destElem);
+        }
       } else {
-        // Overwrite the destination's children
-        empty(destElem);
-        ok = destElem.appendChild(templDoc);
+        insertionQueue = [destElems];
       }
-      if (ok != false) {
-        conf.afterInsert();
-        conf.success();
-      } else if (ok === false) {
-        if (conf.error) {
-          conf.error();
+      for (destElem of insertionQueue) {
+        console.log("Inserting Template into " + destElem.tagName + ":");
+        console.log(destElem);
+        if (conf.append) {
+          // Append the destination's children
+          ok = destElem.appendChild(templDoc.cloneNode(true));
+        } else if (conf.prepend) {
+          // Prepend the destination's children
+          ok = destElem.insertBefore(templDoc.cloneNode(true), destElem.firstChild);
         } else {
-          destElem.insertAdjacentText("beforeend", document.createTextNode(String(conf.errorMessage)));
-          console.error(conf.errorMessage);
+          // Overwrite the destination's children
+          empty(destElem);
+          ok = destElem.appendChild(templDoc.cloneNode(true));
+        }
+        if (ok != false) {
+          conf.afterInsert();
+          conf.success();
+        } else if (ok === false) {
+          if (conf.error) {
+            conf.error();
+          } else {
+            destElem.insertAdjacentText("beforeend", document.createTextNode(String(conf.errorMessage)));
+            console.error(conf.errorMessage);
+          }
         }
       }
       conf.complete();
@@ -222,19 +234,23 @@ var cdaTemplate = (function () {
   }
 
   // Prepare and insert a Template into destElem
-  function loadTemplate (templLoc, destId, settings) {
+  function loadTemplate (templLoc, destSel, settings) {
     // Configuration Init
     var conf = Object.assign({}, defaultSettings, settings);
     // Destination element for the template
-    var destElem = document.getElementById(destId);
-    if (destElem !== null) {
+    if (conf.multiDest) {
+      var destElems = document.querySelectorAll(destSel);
+    } else {
+      var destElems = document.querySelector(destSel);
+    }
+    if (destElems !== null) {
       // Stage Document Cache
       if (!conf.overwriteCache && cache.hasDoc(templLoc)) {
         // Load the template from the cache
         var templDoc = cache.getDoc(templLoc);
         console.log("Loading Cached Template: " + templLoc);
         // Proceed to populate and insert the template
-        stageTemplate(templDoc, destElem, conf);
+        stageTemplate(templDoc, destElems, conf);
       } else {
         if (conf.isFile) {
           // Get template from remote file
@@ -247,11 +263,11 @@ var cdaTemplate = (function () {
             console.log("Loading Remote Template:");
             console.log(templDoc.innerHTML);
             // Proceed to populate and insert the template
-            stageTemplate(templDoc, destElem, conf);
+            stageTemplate(templDoc, destElems, conf);
           }).catch(console.error);
         } else {
           // Get template from an in-document node
-          var templElem = document.getElementById(templLoc);
+          var templElem = document.querySelector(templLoc);
           if (templElem !== null) {
             console.log("Loading Local Template:");
             console.log(templElem);
@@ -271,28 +287,28 @@ var cdaTemplate = (function () {
             // Save to Document Cache
             cache.saveDoc(templLoc, templDoc);
             // Proceed to populate and insert the template
-            stageTemplate(templDoc, destElem, conf);
+            stageTemplate(templDoc, destElems, conf);
           } else {
-            console.error("Template ID \"" + templId + "\" not found.");
+            console.error("Template ID \"" + templLoc + "\" not found.");
           }
         }
       }
     } else {
-      console.error("Template Destination ID \"" + destId + "\" not found.");
+      console.error("Template Destination ID \"" + destSel + "\" not found.");
     }
   }
 
   var pub = {};
 
   // Load a Template from the DOM
-  pub.loadTemplate = function (templId, destId, settings = {}) {
-    loadTemplate(templId, destId, settings);
+  pub.loadTemplate = function (templSel, destSel, settings = {}) {
+    loadTemplate(templSel, destSel, settings);
   }
 
   // Load a Template with Ajax
-  pub.loadTemplateXhr = function (url, destId, settings = {}) {
+  pub.loadTemplateXhr = function (url, destSel, settings = {}) {
     settings.isFile = true;
-    loadTemplate(url, destId, settings);
+    loadTemplate(url, destSel, settings);
   };
 
   return pub;
