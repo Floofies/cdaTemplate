@@ -77,6 +77,7 @@ Option|DataType|Description
 `elemPerPage`|Number|The number of elements to include per-page.
 `error`|Function|The Callback to execute if template loading was not successful. Errors output into the destination element if not set.
 `errorMessage`|String|The error message to output into the destination element. (Not used if `error` is set)
+`multiDest`|Boolean|Inserts the templates into multiple elements matching the `destinationSelector`. (Only the first match is used otherwise)
 `overwriteCache`|Boolean|Forces a the template to load from it's original location instead of the cache.
 `paged`|Boolean|Enables pagination.
 `pageNo`|Number|The page number to start at.
