@@ -187,8 +187,8 @@ var cdaTemplate = (function () {
           }
         }
       }
-      conf.complete();
     }
+    conf.complete();
   }
 
   // Prepare a Template DocumentFragment with data
@@ -226,11 +226,62 @@ var cdaTemplate = (function () {
     return templDoc;
   }
 
-  function stageTemplate (templDoc, destElem, conf) {
+  function stageTemplate (templDoc, destElems, conf) {
     // Prepare the Template
     var preppedDoc = prepareTemplate(templDoc, conf);
     // Insert the Template into the DOM
-    insertTemplate(preppedDoc, destElem, conf);
+    insertTemplate(preppedDoc, destElems, conf);
+  }
+
+  // Get template from remote file
+  function getTemplateXHR (templLoc, destElems, conf) {
+    ajax(templLoc, "text").then(function (html) {
+      // Load the template into a new Document Fragment
+      var templDoc = document.createDocumentFragment();
+      templDoc.innerHTML = html;
+      // Save to Document Cache
+      cache.saveDoc(templLoc, templDoc);
+      console.log("Loading Remote Template:");
+      console.log(templDoc.innerHTML);
+      // Proceed to populate and insert the template
+      stageTemplate(templDoc, destElems, conf);
+    }).catch(console.error);
+  }
+
+  // Get template from DOM node
+  function getTemplateDOM (templLoc, destElems, conf) {
+    var templElem = document.querySelector(templLoc);
+    if (templElem !== null) {
+      console.log("Loading Local Template:");
+      console.log(templElem);
+      // Load the template into a new Document Fragment
+      var tagName = templElem.tagName;
+      var childNodes = templElem.childNodes;
+      if ((tagName == "TEMPLATE" || tagName == "SCRIPT") && (childNodes.length === 1 && childNodes[0].nodeType === 3)) {
+        // Get template from a script/template element
+        // Convert the template text node into document nodes
+        var newElem = document.createElement("div");
+        newElem.innerHTML = templElem.textContent;
+        var templDoc = newFragmentClone(newElem);
+      } else {
+        // Get template from a live node
+        var templDoc = newFragmentClone(templElem);
+      }
+      // Save to Document Cache
+      cache.saveDoc(templLoc, templDoc);
+      // Proceed to populate and insert the template
+      stageTemplate(templDoc, destElems, conf);
+    } else {
+      console.error("Template \"" + templLoc + "\" not found.");
+    }
+  }
+
+  // Get template from Document Cache
+  function getTemplateCache (templLoc, destElems, conf) {
+    var templDoc = cache.getDoc(templLoc);
+    console.log("Loading Cached Template: " + templLoc);
+    // Proceed to populate and insert the template
+    stageTemplate(templDoc, destElems, conf);
   }
 
   // Prepare and insert a Template into destElem
@@ -253,48 +304,15 @@ var cdaTemplate = (function () {
         stageTemplate(templDoc, destElems, conf);
       } else {
         if (conf.isFile) {
-          // Get template from remote file
-          ajax(templLoc, "text").then(function (html) {
-            // Load the template into a new Document Fragment
-            var templDoc = document.createDocumentFragment();
-            templDoc.innerHTML = html;
-            // Save to Document Cache
-            cache.saveDoc(templLoc, templDoc);
-            console.log("Loading Remote Template:");
-            console.log(templDoc.innerHTML);
-            // Proceed to populate and insert the template
-            stageTemplate(templDoc, destElems, conf);
-          }).catch(console.error);
+          // Load the template from a remote file
+          getTemplateXHR(templLoc, destElems, conf);
         } else {
-          // Get template from an in-document node
-          var templElem = document.querySelector(templLoc);
-          if (templElem !== null) {
-            console.log("Loading Local Template:");
-            console.log(templElem);
-            // Load the template into a new Document Fragment
-            var tagName = templElem.tagName;
-            var childNodes = templElem.childNodes;
-            if ((tagName == "TEMPLATE" || tagName == "SCRIPT") && (childNodes.length === 1 && childNodes[0].nodeType === 3)) {
-              // Get template from in-document script/template element
-              // Convert the template text node into document nodes
-              var newElem = document.createElement("div");
-              newElem.innerHTML = templElem.textContent;
-              var templDoc = newFragmentClone(newElem);
-            } else {
-              // Get template from in-document live node
-              var templDoc = newFragmentClone(templElem);
-            }
-            // Save to Document Cache
-            cache.saveDoc(templLoc, templDoc);
-            // Proceed to populate and insert the template
-            stageTemplate(templDoc, destElems, conf);
-          } else {
-            console.error("Template ID \"" + templLoc + "\" not found.");
-          }
+          // Load the template from a DOM node
+          getTemplateDOM(templLoc, destElems, conf);
         }
       }
     } else {
-      console.error("Template Destination ID \"" + destSel + "\" not found.");
+      console.error("Template Destination \"" + destSel + "\" not found.");
     }
   }
 
