@@ -140,7 +140,7 @@ var cdaTemplate = (function () {
     complete: emptyFunc,
     success: emptyFunc,
     error: false,
-    errorMessage: "There was an error loading the template.",
+    errorMessage: false,
     paged: false,
     pageNo: 1,
     elemPerPage: 10
@@ -182,7 +182,8 @@ var cdaTemplate = (function () {
           if (conf.error) {
             conf.error();
           } else {
-            destElem.insertAdjacentText("beforeend", document.createTextNode(String(conf.errorMessage)));
+            var errMsg = conf.errorMessage !== false ? conf.errorEmessage : "There was an error loading the template.";
+            destElem.insertAdjacentText("beforeend", document.createTextNode(String(errMsg)));
             console.error(conf.errorMessage);
           }
         }
@@ -200,9 +201,7 @@ var cdaTemplate = (function () {
       if (conf.paged && Array.isArray(conf.data)) {
         var pages = Math.ceil(curData.length / conf.elemPerPage);
         if (conf.pageNo >= pages) {
-          var start = conf.pageNo * conf.elemPerPage;
-          var stop = conf.elemPerPage + start;
-          curData = conf.data.slice(start, stop);
+          curData = conf.data.slice((conf.pageNo - 1) * conf.elemPerPage, conf.elemPerPage + start);
         }
       }
       // Look for data attributes in the template
@@ -238,7 +237,7 @@ var cdaTemplate = (function () {
     ajax(templLoc, "text").then(function (html) {
       // Load the template into a new Document Fragment
       var templDoc = document.createDocumentFragment();
-      templDoc.innerHTML = html;
+      templDoc.innerHTML = String(html);
       // Save to Document Cache
       cache.saveDoc(templLoc, templDoc);
       console.log("Loading Remote Template:");
