@@ -69,22 +69,22 @@ ___
 ## :wrench: Options
 Several options are available for use in the `options` object.
 
-Option|DataType|Description
----|---|---
-`append`|Boolean|Appends the children of the destination element with the template.
-`afterInsert`|Function|The Callback to execute after inserting the template.
-`beforeInsert`|Function|The Callback to execute before inserting the template.
-`complete`|Function|The Callback to execute after finishing execution. (Non-conditional)
-`data`|Object|An object with named properties matching tags in a template.
-`elemPerPage`|Number|The number of elements to include per-page.
-`error`|Function|The Callback to execute if template loading was not successful. Errors output into the destination element if not set.
-`errorMessage`|String|The error message to output into the destination element. (Not used if `error` is set)
-`multiDest`|Boolean|Inserts the templates into multiple elements matching the `destinationSelector`. (Only the first match is used otherwise)
-`overwriteCache`|Boolean|Forces a the template to load from it's original location instead of the cache.
-`paged`|Boolean|Enables pagination.
-`pageNo`|Number|The page number to start at.
-`prepend`|Boolean|Prepends the children of the destination element with the template.
-`success`|Function|The Callback to execute if template loading was successful.
+Option|DataType|Default|Description
+---|---|---|---
+`append`|Boolean|`false`|Appends the children of the destination element with the template.
+`afterInsert`|Function|No-Op|The Callback to execute after inserting the template.
+`beforeInsert`|Function|No-Op|The Callback to execute before inserting the template.
+`complete`|Function|No-Op|The Callback to execute after finishing execution. (Non-conditional)
+`data`|Object/Array|`false`|An Object or Array with named properties matching tags in a template.
+`elemPerPage`|Number|`10`|The number of elements to include per-page.
+`error`|Function|No-Op|The Callback to execute if template loading was not successful. Errors output into the destination element if not set.
+`errorMessage`|String|`false`|The error message to output into the destination element. (Not used if `error` is set)
+`multiDest`|Boolean|`false`|Inserts the templates into multiple elements matching the `destinationSelector`. (Only the first match is used otherwise)
+`overwriteCache`|Boolean|`false`|Forces the template to load from it's original location instead of the cache. (Slower)
+`paged`|Boolean|`false`|Enables pagination of the `data` property if `data` is an Array.
+`pageNo`|Number|`1`|The page number to start at.
+`prepend`|Boolean|`false`|Prepends the children of the destination element with the template.
+`success`|Function|No-Op|The Callback to execute if template loading was successful.
 
 ## :paperclip: Data Insertion Attributes
 Several one-way data insertion attributes are available for use in templates.
