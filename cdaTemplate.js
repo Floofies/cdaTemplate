@@ -23,10 +23,10 @@ var cdaTemplate = (function () {
   // For empty callback parameters
   var emptyFunc = function () {
     return;
-  }
+  };
   var passFunc = function (input) {
     return input;
-  }
+  };
 
   // Delete all the child nodes of an element
   function empty (target) {
@@ -320,7 +320,7 @@ var cdaTemplate = (function () {
   // Load a Template from the DOM
   pub.loadTemplate = function (templSel, destSel, settings = {}) {
     loadTemplate(templSel, destSel, settings);
-  }
+  };
 
   // Load a Template with Ajax
   pub.loadTemplateXhr = function (url, destSel, settings = {}) {
