@@ -18,8 +18,8 @@ Templates are stored in an internal cache for fast re-use. If you make a change 
 ## :bulb: Methods
 You are provided with two interfaces for loading templates: `loadTemplate` and `loadTemplateXhr`. They can be accessed via the `cdaTemplate` namespace.
 ___
-###`loadTemplate`
 
+###`loadTemplate`
 ######Function
 ```JavaScript
 cdaTemplate.loadTemplate( templateSelector , destinationSelector , options );
@@ -43,8 +43,8 @@ If multiple elements match `destinationSelector`, you can enable insertion into 
   Accepts a range of configuration options. See [Options Documentation](#wrench-options)
 
 ___
-###`loadTemplateXhr`
 
+###`loadTemplateXhr`
 ######Function
 ```JavaScript
 cdaTemplate.loadTemplateXhr( templateURL , destinationSelector , options );
