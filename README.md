@@ -19,6 +19,7 @@ Templates are stored in an internal cache for fast re-use. If you make a change 
 You are provided with two interfaces for loading templates: `loadTemplate` and `loadTemplateXhr`. They can be accessed via the `cdaTemplate` namespace.
 ___
 ###`loadTemplate`
+
 ######Function
 ```JavaScript
 cdaTemplate.loadTemplate( templateSelector , destinationSelector , options );
@@ -43,6 +44,7 @@ If multiple elements match `destinationSelector`, you can enable insertion into 
 
 ___
 ###`loadTemplateXhr`
+
 ######Function
 ```JavaScript
 cdaTemplate.loadTemplateXhr( templateURL , destinationSelector , options );
