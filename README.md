@@ -149,7 +149,7 @@ This example shows usage of a remote template retreived via AJAX.
 ```
 ##### JavaScript:
 ```JavaScript
-cdaTemplate.loadTemplate("/myTemplate.html", "#myContainer", {
+cdaTemplate.loadTemplateXhr("/myTemplate.html", "#myContainer", {
     data: { myTag: "Hello World!" }
 });
 ```
