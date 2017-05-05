@@ -139,7 +139,7 @@ cdaTemplate.loadTemplate("#myTemplate", "#myContainer", {
 
 This example shows usage of a remote template retreived via AJAX.
 ##### Remote HTML File Template:
-######myTemplate.html
+###### myTemplate.html
 ```HTML
 <div data-content-text="myTag"></div>
 ```
