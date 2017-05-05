@@ -111,6 +111,7 @@ Attribute|Description
 
 ## :clipboard: Examples
 <details><summary>Basic Example - In-Document `<script>` Template</summary>
+
 This example shows usage of an in-document template in a `<script>` tag.
 ##### In-Document Template Element:
 ```HTML
@@ -135,6 +136,7 @@ cdaTemplate.loadTemplate("#myTemplate", "#myContainer", {
 </details>
 
 <details><summary>Basic Example - Remote AJAX Template</summary>
+
 This example shows usage of a remote template retreived via AJAX.
 ##### Remote HTML File Template:
 ######myTemplate.html
