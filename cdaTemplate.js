@@ -162,8 +162,6 @@ var cdaTemplate = (function () {
         insertionQueue = [destElems];
       }
       for (destElem of insertionQueue) {
-        console.log("Inserting Template into " + destElem.tagName + ":");
-        console.log(destElem);
         if (conf.append) {
           // Append the destination's children
           ok = destElem.appendChild(templDoc.cloneNode(true));
@@ -184,7 +182,7 @@ var cdaTemplate = (function () {
           } else {
             var errMsg = conf.errorMessage !== false ? conf.errorEmessage : "There was an error loading the template.";
             destElem.insertAdjacentText("beforeend", document.createTextNode(String(errMsg)));
-            console.error(conf.errorMessage);
+            throw new Error(conf.errorMessage);
           }
         }
       }
@@ -209,11 +207,9 @@ var cdaTemplate = (function () {
         var dataNodes = templDoc.querySelectorAll("[" + dataAttr + "]");
         if (dataNodes.length > 0) {
           for (var dataNode of dataNodes.values()) {
-            console.log(dataAttr + " found in " + dataNode.nodeName);
             // Get tag value
             var templTag = dataNode.getAttribute(dataAttr);
             if (templTag !== null && templTag !== "" && curData.hasOwnProperty(templTag)) {
-              console.log("Injecting \"" + curData[templTag] + "\" from \"" + templTag + "\"");
               // Inject Data into the Template
               dataNode.removeAttribute(dataAttr);
               injectors[dataAttr](curData[templTag], dataNode);
@@ -240,19 +236,17 @@ var cdaTemplate = (function () {
       templDoc.innerHTML = String(html);
       // Save to Document Cache
       cache.saveDoc(templLoc, templDoc);
-      console.log("Loading Remote Template:");
-      console.log(templDoc.innerHTML);
       // Proceed to populate and insert the template
       stageTemplate(templDoc, destElems, conf);
-    }).catch(console.error);
+    }).catch(
+      (msg) => { throw new Error(msg) }
+    );
   }
 
   // Get template from DOM node
   function getTemplateDOM (templLoc, destElems, conf) {
     var templElem = document.querySelector(templLoc);
     if (templElem !== null) {
-      console.log("Loading Local Template:");
-      console.log(templElem);
       // Load the template into a new Document Fragment
       var tagName = templElem.tagName;
       var childNodes = templElem.childNodes;
@@ -271,14 +265,13 @@ var cdaTemplate = (function () {
       // Proceed to populate and insert the template
       stageTemplate(templDoc, destElems, conf);
     } else {
-      console.error("Template \"" + templLoc + "\" not found.");
+      throw new Error("Template \"" + templLoc + "\" not found.");
     }
   }
 
   // Get template from Document Cache
   function getTemplateCache (templLoc, destElems, conf) {
     var templDoc = cache.getDoc(templLoc);
-    console.log("Loading Cached Template: " + templLoc);
     // Proceed to populate and insert the template
     stageTemplate(templDoc, destElems, conf);
   }
@@ -298,7 +291,6 @@ var cdaTemplate = (function () {
       if (!conf.overwriteCache && cache.hasDoc(templLoc)) {
         // Load the template from the cache
         var templDoc = cache.getDoc(templLoc);
-        console.log("Loading Cached Template: " + templLoc);
         // Proceed to populate and insert the template
         stageTemplate(templDoc, destElems, conf);
       } else {
@@ -311,7 +303,7 @@ var cdaTemplate = (function () {
         }
       }
     } else {
-      console.error("Template Destination \"" + destSel + "\" not found.");
+      throw new Error("Template Destination \"" + destSel + "\" not found.");
     }
   }
 
