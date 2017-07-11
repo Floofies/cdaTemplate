@@ -1,13 +1,19 @@
 "use strict";
 var cdaTemplate = (function () {
-
-  function ajax (url = "/", resType = 'text', data = "") {
+  /**
+  * ajax - A Promise wrapper for XMLHttpRequest
+  * @param  {String} url = "/"        A web address, URL or URI.
+  * @param  {String} resType = 'text' The server response type.
+  * @param  {Mixed} data = null       Data to send to the server.
+  * @return {Promise}                 Resolved with response or Rejected with error.
+  */
+  function ajax (url = "/", resType = 'text', data = null) {
     return new Promise (function (resolve, reject) {
       var req = new XMLHttpRequest();
       req.onreadystatechange = function () {
         if (req.readyState === 4) {
           if (req.status >= 400 && req.status < 600) {
-            reject("HTTP Error " + req.status + ": " + req.statusText);
+            reject({status: req.status, statusText: req.statusText});
           } else if (req.status >= 200 && req.status < 400) {
             resolve(req.response);
           }
@@ -16,26 +22,46 @@ var cdaTemplate = (function () {
       req.open("GET", url);
       req.responseType = resType;
       req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      req.send();
+      req.send(data);
     });
   }
-
   // For empty callback parameters
-  var emptyFunc = function () {
+  var _noOp = function () {
     return;
   };
-  var passFunc = function (input) {
+  var _identity = function (input) {
     return input;
   };
-
-  // Delete all the child nodes of an element
+  /**
+  * assert - Logs an error message to console if boolean is false,
+  *    If errorType is set, throws a new error of errorType instead.
+  * @param  {Boolean} boolean         The activation boolean.
+  * @param  {String} message          The message to log, or include in the Error.
+  * @param  {Error} errorType = null  If not null, throws a new error of errorType.
+  */
+  function assert (boolean, message, errorType = null) {
+    if (!boolean) {
+      if (errorType !== null && errorType instanceof Error) {
+        throw new errorType(message);
+      } else {
+        console.error(message);
+      }
+    }
+  }
+  /**
+  * empty - Deletes all the child nodes of an element.
+  * @param  {Element} target The Element to clear.
+  */
   function empty (target) {
     while (target.hasChildNodes()) {
       target.removeChild(target.lastChild);
     }
   }
-
-  // Clone the child nodes of an element into a new Document Fragment
+  /**
+  * newFragmentClone - Clone the child nodes of an element into a new Document Fragment.
+  * @param  {Element} sourceElem The Element to Clone.
+  * @return {DocumentFragment}   The clone of sourceElem.
+  */
   function newFragmentClone (sourceElem) {
     var frag = document.createDocumentFragment();
     var sourceNodes = sourceElem.childNodes;
@@ -44,10 +70,17 @@ var cdaTemplate = (function () {
     }
     return frag;
   }
-
+  /**
+  * newFragmentParse - Parses an HTML string into DOM nodes in a Document Fragment.
+  * @param  {String} sourceHtml Parse an HTML string into a new Document Fragment.
+  * @return {DocumentFragment}  Contains the DOM parsed from sourceHtml.
+  */
+  function newFragmentParse (sourceHtml) {
+    return document.createRange().createContextualFragment(sourceHtml);
+  };
   // Custom Data Attribute -> Data Injector Function
-  var injectors;
-  injectors = {
+  var _injectors;
+  _injectors = {
     "data-content-text": function (input, target, pos = false) {
       if (!pos) {
         pos = "afterbegin";
@@ -56,10 +89,10 @@ var cdaTemplate = (function () {
       target.insertAdjacentText(pos, String(input));
     },
     "data-content-text-append": function (input, target) {
-      injectors["data-content-text"](input, target, "beforeend");
+      _injectors["data-content-text"](input, target, "beforeend");
     },
     "data-content-text-prepend": function (input, target) {
-      injectors["data-content-text"](input, target, "afterbegin");
+      _injectors["data-content-text"](input, target, "afterbegin");
     },
     "data-innerHTML": function (input, target, pos = false) {
       if (!pos) {
@@ -69,13 +102,13 @@ var cdaTemplate = (function () {
       target.insertAdjacentHTML(pos, input);
     },
     "data-content": function (input, target) {
-      injectors["data-innerHTML"](input, target);
+      _injectors["data-innerHTML"](input, target);
     },
     "data-content-append": function (input, target) {
-      injectors["data-innerHTML"](input, target, "beforeend");
+      _injectors["data-innerHTML"](input, target, "beforeend");
     },
     "data-content-prepend": function (input, target) {
-      injectors["data-innerHTML"](input, target, "afterbegin");
+      _injectors["data-innerHTML"](input, target, "afterbegin");
     },
     "data-class": function (input, target) {
       target.setAttribute("class", input);
@@ -112,41 +145,14 @@ var cdaTemplate = (function () {
       target.setAttribute("alt", input);
     }
   };
-
-  // Document Fragment Cache
-  var cache = {
-    docs: {},
-    hasDoc: function (id) {
-      return cache.docs.hasOwnProperty(id);
-    },
-    getDoc: function (id) {
-      return cache.docs[id].cloneNode(true);
-    },
-    saveDoc: function (id, doc) {
-      cache.docs[id] = doc.cloneNode(true);
-    }
-  };
-
-  // The default options/conf Object
-  var defaultSettings = {
-    data: false,
-    multiDest: false,
-    append: false,
-    prepend: false,
-    isFile: false,
-    overwriteCache: false,
-    beforeInsert: emptyFunc,
-    afterInsert: emptyFunc,
-    complete: emptyFunc,
-    success: emptyFunc,
-    error: false,
-    errorMessage: false,
-    paged: false,
-    pageNo: 1,
-    elemPerPage: 10
-  };
-
-  // Insert a Prepared Template into destElem
+  Object.freeze(_injectors);
+  /**
+  * insertTemplate - Insert a Template into destElems
+  * @param  {DocumentFragment} templDoc  Document containing the Template.
+  * @param  {Node|NodeList} destElems    Destination Node(s). A single Node or a NodeList.
+  * @param  {Object} conf                Configuration.
+  * @return {Array<Node>|Node}           The inserted Template(s). A single Node or a NodeList.
+  */
   function insertTemplate (templDoc, destElems, conf) {
     // Before insertion Callback
     conf.beforeInsert();
@@ -156,27 +162,31 @@ var cdaTemplate = (function () {
       var insertionQueue = [];
       if (conf.multiDest) {
         for (var destElem of destElems.values()) {
-          insertionQueue.push(destElem);
+          insertionQueue[insertionQueue.length](destElem);
         }
       } else {
         insertionQueue = [destElems];
       }
+      var insertedTemplates = [];
+      var liveTmpl = false;
       for (destElem of insertionQueue) {
         if (conf.append) {
           // Append the destination's children
-          ok = destElem.appendChild(templDoc.cloneNode(true));
+          liveTmpl = destElem.appendChild(templDoc.cloneNode(true));
         } else if (conf.prepend) {
           // Prepend the destination's children
-          ok = destElem.insertBefore(templDoc.cloneNode(true), destElem.firstChild);
+          liveTmpl = destElem.insertBefore(templDoc.cloneNode(true), destElem.firstChild);
         } else {
           // Overwrite the destination's children
           empty(destElem);
-          ok = destElem.appendChild(templDoc.cloneNode(true));
+          liveTmpl = destElem.appendChild(templDoc.cloneNode(true));
         }
-        if (ok != false) {
+        if (liveTmpl != false) {
+          insertedTemplates[insertedTemplates.length] = liveTmpl;
           conf.afterInsert();
-          conf.success();
-        } else if (ok === false) {
+          var tmplOutput = conf.multiDest && insertionQueue.length > 1 ? insertedTemplates : liveTmpl;
+          conf.success(tmplOutput);
+        } else if (liveTmpl === false) {
           if (conf.error) {
             conf.error();
           } else {
@@ -188,12 +198,19 @@ var cdaTemplate = (function () {
       }
     }
     conf.complete();
+    if (liveTmpl != false) {
+      return tmplOutput;
+    }
   }
-
-  // Prepare a Template DocumentFragment with data
+  /**
+  * prepareTemplate - Inject data into templDoc.
+  * @param  {DocumentFragment} templDoc Document containing the Template.
+  * @param  {Object} conf               Configuration.
+  * @return {DoucmentFragment}          templDoc.
+  */
   function prepareTemplate (templDoc, conf) {
     // Inject any data into the Template
-    if (conf.hasOwnProperty("data") && Object.keys(conf.data).length > 0) {
+    if (conf.data !== null && Object.keys(conf.data).length > 0) {
       // Paginate the data
       var curData = conf.data;
       if (conf.paged && Array.isArray(conf.data)) {
@@ -203,16 +220,24 @@ var cdaTemplate = (function () {
         }
       }
       // Look for data attributes in the template
-      for (var dataAttr in injectors) {
+      var curInjectors = Object.assign({}, conf.attributes, _injectors);
+      for (var dataAttr in curInjectors) {
         var dataNodes = templDoc.querySelectorAll("[" + dataAttr + "]");
         if (dataNodes.length > 0) {
           for (var dataNode of dataNodes.values()) {
             // Get tag value
             var templTag = dataNode.getAttribute(dataAttr);
-            if (templTag !== null && templTag !== "" && curData.hasOwnProperty(templTag)) {
+            if (templTag !== null && templTag !== "" && templTag in curData) {
+              // Pre-Format Data
+              var injectValue = "";
+              if (templTag in conf.formatters) {
+                injectValue = conf.formatters[templTag](curData[templTag]);
+              } else {
+                injectValue = curData[templTag];
+              }
               // Inject Data into the Template
               dataNode.removeAttribute(dataAttr);
-              injectors[dataAttr](curData[templTag], dataNode);
+              curInjectors[dataAttr](injectValue, dataNode);
             }
           }
         }
@@ -220,105 +245,158 @@ var cdaTemplate = (function () {
     }
     return templDoc;
   }
-
-  function stageTemplate (templDoc, destElems, conf) {
-    // Prepare the Template
-    var preppedDoc = prepareTemplate(templDoc, conf);
-    // Insert the Template into the DOM
-    insertTemplate(preppedDoc, destElems, conf);
+  /**
+  * getTemplateXHR - Get template from remote file.
+  * @param  {String} templLoc  URL of the Template HTML file.
+  * @param  {Array} destElems  Array of Destination Elements.
+  * @param  {Object} conf      Configuration.
+  * @return {Promise}          Resolves with Template DocumentFragment.
+  */
+  function getTemplateXHR (templUrl, destElems, conf) {
+    return conf.ajax(templUrl, "text").then(function (html) {
+      resolve(newFramgmentParse(html));
+    });
   }
-
-  // Get template from remote file
-  function getTemplateXHR (templLoc, destElems, conf) {
-    ajax(templLoc, "text").then(function (html) {
-      // Load the template into a new Document Fragment
-      var templDoc = document.createDocumentFragment();
-      templDoc.innerHTML = String(html);
-      // Save to Document Cache
-      cache.saveDoc(templLoc, templDoc);
-      // Proceed to populate and insert the template
-      stageTemplate(templDoc, destElems, conf);
-    }).catch(
-      (msg) => { throw new Error(msg) }
-    );
-  }
-
-  // Get template from DOM node
+  /**
+  * getTemplateDOM - Get template from DOM node
+  * @param  {String} templLoc  Template QuerySelector.
+  * @param  {Array} destElems  Array of Destination Elements.
+  * @param  {Object} conf      Configuration.
+  * @return {DocumentFragment} Document containing the Template.
+  */
   function getTemplateDOM (templLoc, destElems, conf) {
     var templElem = document.querySelector(templLoc);
-    if (templElem !== null) {
-      // Load the template into a new Document Fragment
-      var tagName = templElem.tagName;
-      var childNodes = templElem.childNodes;
-      if ((tagName == "TEMPLATE" || tagName == "SCRIPT") && (childNodes.length === 1 && childNodes[0].nodeType === 3)) {
-        // Get template from a script/template element
-        // Convert the template text node into document nodes
-        var newElem = document.createElement("div");
-        newElem.innerHTML = templElem.textContent;
-        var templDoc = newFragmentClone(newElem);
-      } else {
-        // Get template from a live node
-        var templDoc = newFragmentClone(templElem);
-      }
-      // Save to Document Cache
-      cache.saveDoc(templLoc, templDoc);
-      // Proceed to populate and insert the template
-      stageTemplate(templDoc, destElems, conf);
+    assert(templElem !== null, "Template \"" + templLoc + "\" not found.", Error);
+    // Load the template into a new Document Fragment
+    var tagName = templElem.tagName;
+    var childNodes = templElem.childNodes;
+    if ((tagName == "TEMPLATE" || tagName == "SCRIPT") && (childNodes.length === 1 && childNodes[0].nodeType === 3)) {
+      // Get template from a script/template element
+      // Convert the template text node into document nodes
+      return  newFragmentParse(templElem.textContent);
     } else {
-      throw new Error("Template \"" + templLoc + "\" not found.");
+      // Get template from a live node
+      return newFragmentClone(templElem);
     }
   }
-
-  // Get template from Document Cache
-  function getTemplateCache (templLoc, destElems, conf) {
-    var templDoc = cache.getDoc(templLoc);
-    // Proceed to populate and insert the template
-    stageTemplate(templDoc, destElems, conf);
-  }
-
-  // Prepare and insert a Template into destElem
-  function loadTemplate (templLoc, destSel, settings) {
-    // Configuration Init
-    var conf = Object.assign({}, defaultSettings, settings);
+  /**
+  * loadTemplate - Load, Prepare, and Insert a Template into destElem(s).
+  * @param  {String} templLoc  Template QuerySelector or URI/URL.
+  * @param  {String} destSel   Destination QuerySelector.
+  * @param  {Object} conf      Configuration.
+  */
+  function loadTemplate (templLoc, destSel, conf) {
     // Destination element for the template
     if (conf.multiDest) {
       var destElems = document.querySelectorAll(destSel);
     } else {
       var destElems = document.querySelector(destSel);
     }
-    if (destElems !== null) {
-      // Stage Document Cache
-      if (!conf.overwriteCache && cache.hasDoc(templLoc)) {
-        // Load the template from the cache
-        var templDoc = cache.getDoc(templLoc);
-        // Proceed to populate and insert the template
-        stageTemplate(templDoc, destElems, conf);
+    assert(destElems !== null, "Template Destination \"" + destSel + "\" not found.", Error);
+    function insertionThunk (templDoc) {
+      // Insert data into the Template, then insert the Template into the DOM
+      return insertTemplate(prepareTemplate(templDoc, conf), destElems, conf);
+    }
+    var templDoc = conf.cache.getDoc(templLoc);
+    if (templDoc === null) {
+      if (conf.isFile) {
+        // Async
+        return getTemplateXHR(templLoc, conf).then(insertionThunk);
       } else {
-        if (conf.isFile) {
-          // Load the template from a remote file
-          getTemplateXHR(templLoc, destElems, conf);
-        } else {
-          // Load the template from a DOM node
-          getTemplateDOM(templLoc, destElems, conf);
-        }
+        // Sync
+        templDoc = getTemplateDOM(templLoc);
+        conf.cache.saveDoc(templLoc, templDoc);
+        return insertionThunk(templDoc);
       }
     } else {
-      throw new Error("Template Destination \"" + destSel + "\" not found.");
+      return insertionThunk(templDoc);
     }
   }
-
-  var pub = {};
-
-  // Load a Template from the DOM
-  pub.loadTemplate = function (templSel, destSel, settings = {}) {
-    loadTemplate(templSel, destSel, settings);
+  // The default Configuration Object
+  function newConfiguration () {
+    return {
+      ajax: ajax,
+      formatters: {},
+      attributes: {},
+      data: null,
+      multiDest: false,
+      append: false,
+      prepend: false,
+      isFile: false,
+      overwriteCache: false,
+      beforeInsert: _noOp,
+      afterInsert: _noOp,
+      complete: _noOp,
+      success: _noOp,
+      error: false,
+      errorMessage: false,
+      paged: false,
+      pageNo: 1,
+      elemPerPage: 10
+    };
   };
-
-  // Load a Template with Ajax
-  pub.loadTemplateXhr = function (url, destSel, settings = {}) {
-    settings.isFile = true;
-    loadTemplate(url, destSel, settings);
+  // Document Fragment Cache
+  function Cache () {
+    this.docs = [];
+    this.reset = () => this.docs = [];
+    this.hasDoc = (selector) => this.docs.indexOf(selector) !== -1;
+    this.getDoc = function (selector) {
+      var index = this.docs.indexOf(selector);
+      if (index !== -1) {
+        return this.docs[index].cloneNode(true);
+      } else {
+        return null;
+      }
+    };
+    this.saveDoc = function (id, doc) {
+      this.docs[this.docs.length] = doc.cloneNode(true);
+    };
   };
-
-  return pub;
+  // Primary Interface Constructor
+  function _constructor (conf = {}) {
+    this.defaultConf = newConfiguration();
+    this.conf = Object.assign({}, this.defaultConf, conf);
+    this.conf.cache = new Cache();
+    /**
+    * anonymous function - description
+    * @param  {String} name        description
+    * @param  {Function} callback  description
+    */
+    this.addAttribute = function (name, callback) {
+      this.conf.attributes["data" + name] = callback;
+    };
+    /**
+    * addFormatter - Adds a Formatter callback to the config object.
+    *  /!\ It should NOT mutate the input parameter!
+    * @param  {String} name        Name of the formatter.
+    * @param  {Function} callback  The formatter callback, accepts one "value" parameter.
+    */
+    this.addFormatter = function (name, callback) {
+      this.conf.formatters[name] = callback;
+    };
+    /**
+    * loadTemplate - Load a Template from the DOM.
+    *   Synchronous; returns the inserted Template.
+    * @param  {String} templSel       Template QuerySelector.
+    * @param  {String} destSel        Destination QuerySelector.
+    * @param  {Object} settings = {}  Configuration.
+    * @return {DocumentFragment}      The inserted Template DocumentFragment.
+    */
+    this.loadTemplate = function (templSel, destSel, conf = {}) {
+      return loadTemplate(templSel, destSel, Object.assign({}, this.conf, conf));
+    };
+    /**
+    * loadTemplateXhr - Load a Template with Ajax.
+    *   Asynchronous; returns a Promise Resolved with the inserted Template.
+    * @param  {String} url        Template URL/URI.
+    * @param  {String} destSel    Destination QuerySelector.
+    * @param  {Object} conf = {}  Configuration.
+    * @return {Promise}           Resolves with inserted Template DocumentFragment.
+    */
+    this.loadTemplateXhr = function (url, destSel, conf = {}) {
+      conf.isFile = true;
+      return this.loadTemplate(url, destSel, conf);
+    };
+  }
+  return _constructor;
 })();
