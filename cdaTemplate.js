@@ -468,7 +468,7 @@ var cdaTemplate = (function () {
       paged: false,
       pageNo: 1,
       prepend: false,
-      removeAttr: false,
+      removeAttr: true,
       success: _noOp,
     };
   };

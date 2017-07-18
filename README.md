@@ -355,7 +355,7 @@ Option|DataType|Default|Description
 `paged`|Boolean|`false`|Enables pagination of the `data` property if `data` is an Array.
 `pageNo`|Number|`1`|The page number to start at.
 `prepend`|Boolean|`false`|Prepends the children of the destination element with the template.
-`removeAttrs`|Boolean|`false`|Removes `data` attributes from loaded templates. `patch` will not work on templates loaded with this set to `true`.
+`removeAttrs`|Boolean|`true`|Removes `data` attributes from loaded templates.
 `success`|Function|No-Op|The Callback to execute if template loading was successful.
 
 ## :paperclip: Data Insertion Attributes
