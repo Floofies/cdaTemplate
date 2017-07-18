@@ -278,7 +278,7 @@ This is the same as setting `isFile` to `true` in the configuration object.
 ___
 
 ### `addInjector`
-###### Async Function
+###### Function
 ```JavaScript
 cdaTemplate.addInjector( name, callback );
 ```
@@ -309,7 +309,7 @@ Adds a custom injector function to the loader.
 ___
 
 ### `addFormatter`
-###### Async Function
+###### Function
 ```JavaScript
 cdaTemplate.addFormatter( name, callback );
 ```
