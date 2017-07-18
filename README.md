@@ -214,6 +214,12 @@ If multiple elements match `destinationSelector`, you can enable insertion into 
 
   Accepts a range of configuration options. See [Options Documentation](#wrench-options)
 
+##### Return Value
+
+- Array
+
+  An Array containing the inserted template(s).
+
 ___
 
 ### `loadTemplateAsync`
