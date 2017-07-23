@@ -290,7 +290,7 @@ cdaTemplate.addInjector( name, callback );
 ```
 Adds a custom injector function to the loader.
 
-`name` will match to a Custom Data attribute in the HTML of your template, while `callback` will run when that attribute is encountered. The callback must mutate the DOM Node, `target`, directly.
+`name` will match to the name of a Custom Data attribute in the HTML of your template; `callback` will run when that attribute is encountered. The callback must mutate the DOM Node, `target`, directly.
 
 ##### Parameters
 
@@ -321,13 +321,22 @@ cdaTemplate.addFormatter( name, callback );
 ```
 Adds a custom formatter function to the loader.
 
-`name` will match to the value of a `data-formatter` attribute in the HTML of your template, while `callback` will run when that name is encountered. The callback must return formatted data, but should not attempt to mutate `value` directly.
+`name` will match to the value of a `data- * -format` attribute in the HTML of your template; `callback` will run, formatting any associated data, when that value is encountered. The callback must return the formatted data, but should not attempt to mutate `value` directly.
+
+For instance, if you have an injector attribute like `data-content-text` on your template element, and would like to format it, you should add `data-content-text-format` to the element as well, with the value being equal to the `name` of your formatter;
+
+Example Template:
+```HTML
+<div data-content-text="myTag" data-content-text-format="myFormatter">
+```
+
+This example shows the property `myTag`, associated with `data-content-text`, being run through the formatter `myFormatter` prior to being injected.
 
 ##### Parameters
 
 - **`name`** String
 
-  The name of the injector attribute. (EX: `data-inject-thing` or `inject-thing`). The `data` prefix will be added automatically if it is missing.
+  The value of the formatter attribute. (EX: `myFormatter`).
 
 - **`callback`** Function
 
@@ -337,7 +346,7 @@ Adds a custom formatter function to the loader.
 
 - **`value`** Mixed
 
-  A value to base formatted data from. Do not mutate.
+  A value to base new formatted data from. Do not mutate!
 
 ___
 ## :wrench: Options
