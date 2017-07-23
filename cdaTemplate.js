@@ -108,10 +108,10 @@ var cdaTemplate = (function () {
       var req = new XMLHttpRequest();
       req.onreadystatechange = function () {
         if (req.readyState === 4) {
-          if (req.status >= 400 && req.status < 600) {
-            throw new Error("XHR HTTP Error " + req.status + ": " + req.statusText);
-          } else if (req.status >= 200 && req.status < 400) {
+          if (req.status >= 200 && req.status < 400) {
             resolve(req.response);
+          } else {
+            return reject(new Error("XHR HTTP Error " + req.status + ": " + req.statusText));
           }
         }
       };
