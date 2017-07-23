@@ -194,7 +194,7 @@ var cdaTemplate = (function () {
   */
   function newFragmentParse(tagString) {
     return document.createRange().createContextualFragment(tagString);
-  };
+  }
   //+---------------------------+
   //| Engine-Specific Functions |
   //+---------------------------+
@@ -222,13 +222,13 @@ var cdaTemplate = (function () {
   // Saves a clone of `doc` named `id` to the cache.
   Cache.prototype.saveDoc = function (id, doc) {
     this.docs[this.docs.length] = doc.cloneNode(true);
-  }
+  };
   /**
   * insertTemplate - Insert a Template into destElems
-  * @param  {DocumentFragment} templDoc  The templates, combined into a single DocumentFragment.
-  * @param  {Node|NodeList} destElems    Destination Node(s). A single Node or a NodeList.
-  * @param  {Object} conf                Configuration.
-  * @return {Array<Node>}                The inserted Template Node(s).
+  * @param  {DocumentFragment} templDoc       The templates, combined into a single DocumentFragment.
+  * @param  {Array<Node>|NodeList} destElems  Destination Node(s). An Array of Nodes, or a NodeList.
+  * @param  {Object} conf                     Configuration.
+  * @return {Array<Node>}                     The inserted Template Node(s).
   */
   function insertTemplates(templDoc, destElems, conf) {
     // Before insertion Callback
@@ -354,9 +354,9 @@ var cdaTemplate = (function () {
   }
   /**
   * getDestinations - Get destination Node(s) from the DOM.
-  * @param  {String} destSel  Destination QuerySelector.
-  * @param  {Object} conf     Configuration.
-  * @return {Node|NodeList}   Destination Node(s).
+  * @param  {String} destSel        Destination QuerySelector.
+  * @param  {Object} conf           Configuration.
+  * @return {Array<Node>|NodeList}  Destination Node(s). An Array of Nodes, or a NodeList.
   */
   function getDestinations(destSel, conf) {
     if (conf.multiDest) {
@@ -476,9 +476,9 @@ var cdaTemplate = (function () {
       pageNo: 1,
       prepend: false,
       removeAttr: true,
-      success: _noOp,
+      success: _noOp
     };
-  };
+  }
   //+---------------------------+
   //| Public Interface          |
   //+---------------------------+
