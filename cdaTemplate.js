@@ -4,8 +4,7 @@ var cdaTemplate = (function () {
   //| Data Injection Functions  |
   //+---------------------------+
   // Custom Data Attribute -> Data Injector Function
-  var _injectors;
-  _injectors = {
+  const _injectors = {
     // Sets the `alt` attribute of the element.
     "data-alt": function (input, target) {
       target.setAttribute("alt", input);
@@ -82,12 +81,21 @@ var cdaTemplate = (function () {
       target.setAttribute("value", input);
     }
   };
-  // Make sure no injectors get directly changed at runtime.
-  Object.freeze(_injectors);
-
   //+---------------------------+
   //| Generic Utility Functions |
   //+---------------------------+
+  // `Array.values()` Polyfill
+  // Returns a new Array Iterator object that contains the values for each index in the array.
+  if (!Array.prototype.hasOwnProperty("values")) {
+    Object.defineProperty(Array.prototype, "values", {
+      enumerable: false,
+      value: function* () {
+        for (var value of this) {
+          yield value;
+        }
+      }
+    });
+  }
   /**
   * ajax - A Promise wrapper for XMLHttpRequest
   * @param  {String} url = "/"         A web address, URL or URI.
@@ -95,13 +103,13 @@ var cdaTemplate = (function () {
   * @param  {Mixed} data = null        Data to send to the server.
   * @return {Promise}                  Resolved with response or Rejected with error.
   */
-  function ajax(url = "/", resType = 'text', data = null) {
+  function ajax(url = "/", resType = "text", data = null) {
     return new Promise(function (resolve, reject) {
       var req = new XMLHttpRequest();
       req.onreadystatechange = function () {
         if (req.readyState === 4) {
           if (req.status >= 400 && req.status < 600) {
-            reject(new Error("XHR HTTP Error " + req.status + ": " + req.statusText));
+            throw new Error("XHR HTTP Error " + req.status + ": " + req.statusText);
           } else if (req.status >= 200 && req.status < 400) {
             resolve(req.response);
           }
@@ -109,19 +117,15 @@ var cdaTemplate = (function () {
       };
       req.open("GET", url);
       req.responseType = resType;
-      req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
       req.send(data);
     });
   }
   // For empty callback parameters
-  var _noOp = function () {
-    return;
-  };
-  var _identity = function (input) {
-    return input;
-  };
+  const _noOp = () => { };
+  const _identity = argument => argument;
   /**
-  * assert - Logs an error message to console if `boolean` is false,
+  * assert - Logs or throws an Error if `boolean` is false,
   *  If `boolean` is `true`, nothing happens.
   *  If `errorType` is set, throws a new Error of type `errorType` instead of logging to console.
   * @param  {Boolean} boolean         The activation Boolean.
@@ -177,7 +181,7 @@ var cdaTemplate = (function () {
   * @return {DocumentFragment}    The clone of sourceElem.
   */
   function newFragmentClone(sourceElem) {
-    var frag = document.createDocumentFragment();
+    const frag = document.createDocumentFragment();
     for (var node of sourceElem.childNodes.values()) {
       frag.appendChild(node.cloneNode(true));
     }
@@ -185,37 +189,43 @@ var cdaTemplate = (function () {
   }
   /**
   * newFragmentParse - Parses an HTML string into DOM nodes in a Document Fragment.
-  * @param  {String} sourceHtml  Parse an HTML string into a new Document Fragment.
-  * @return {DocumentFragment}   Contains the DOM parsed from sourceHtml.
+  * @param  {String} tagString  Parse an HTML string into a new Document Fragment.
+  * @return {DocumentFragment}   Contains the DOM parsed from `tagString`.
   */
-  function newFragmentParse(sourceHtml) {
-    return document.createRange().createContextualFragment(sourceHtml);
+  function newFragmentParse(tagString) {
+    return document.createRange().createContextualFragment(tagString);
   };
   //+---------------------------+
   //| Engine-Specific Functions |
   //+---------------------------+
   // Document Fragment Cache
   function Cache() {
-    var _docs = [];
-    // Resets internal array to an empty one.
-    this.reset = () => _docs = [];
-    // Checks if a document named `id` is in the cache.
-    this.hasDoc = (id) => _docs.indexOf(id) !== -1;
-    // Returns a cloned DocumentFragment or `null` if one was not found.
-    this.getDoc = function (id) {
-      var index = _docs.indexOf(id);
-      if (index !== -1) {
-        return _docs[index].cloneNode(true);
-      } else {
-        return null;
-      }
-    };
-    // Saves a clone of `doc` named `id` to the cache.
-    this.saveDoc = (id, doc) => _docs[_docs.length] = doc.cloneNode(true);
+    this.docs = [];
+  }
+  // Resets internal array to an empty one.
+  Cache.prototype.reset = function () {
+    this.docs = [];
   };
+  // Checks if a document named `id` is in the cache.
+  Cache.prototype.hasDoc = function (id) {
+    this.docs.indexOf(id) !== -1;
+  };
+  // Returns a cloned DocumentFragment or `null` if one was not found.
+  Cache.prototype.getDoc = function (id) {
+    var index = this.docs.indexOf(id);
+    if (index !== -1) {
+      return this.docs[index].cloneNode(true);
+    } else {
+      return null;
+    }
+  };
+  // Saves a clone of `doc` named `id` to the cache.
+  Cache.prototype.saveDoc = function (id, doc) {
+    this.docs[this.docs.length] = doc.cloneNode(true);
+  }
   /**
   * insertTemplate - Insert a Template into destElems
-  * @param  {DocumentFragment} templDoc  The template.
+  * @param  {DocumentFragment} templDoc  The templates, combined into a single DocumentFragment.
   * @param  {Node|NodeList} destElems    Destination Node(s). A single Node or a NodeList.
   * @param  {Object} conf                Configuration.
   * @return {Array<Node>}                The inserted Template Node(s).
@@ -224,25 +234,14 @@ var cdaTemplate = (function () {
     // Before insertion Callback
     conf.beforeInsert();
     // Insert the Templates into destElement
-    var insertedTemplates = [];
-    var destQueue = [];
-    // Set up destination insertion queue.
-    if (conf.multiDest) {
-      // If multiple destinations
-      for (var destElem of destElems.values()) {
-        destQueue[destQueue.length] = destElem;
-      }
-    } else {
-      // If single destination
-      destQueue = [destElems];
-    }
+    const insertedTemplates = [];
     // Only proceed if we have some nodes to insert
     if (templDoc.hasChildNodes()) {
-      var errorStatus = false;
+      let errorStatus = false;
       // Iterate through the destinations for insertion
-      for (var loc = 0; loc < destQueue.length; loc++) {
-        var destElem = destQueue[loc];
-        var liveTmpl = false;
+      for (var destElem of destElems.values()) {
+        console.log(destElem);
+        let liveTmpl = false;
         if (conf.prepend) {
           // Prepend the destination's children
           liveTmpl = destElem.insertBefore(templDoc.cloneNode(true), destElem.firstChild);
@@ -276,6 +275,25 @@ var cdaTemplate = (function () {
     return insertedTemplates;
   }
   /**
+* getData - Get relevant data to the current template load.
+* @param  {Object} conf  Configuration.
+* @return {Array}        An ordered queue of data to inject into templates.
+*/
+  function getData(conf) {
+    // Paginate data
+    if (conf.paged) {
+      // We can safely assume `conf.data` is an Array at this point, as it gets checked in the public interface.
+      const pageCount = Math.ceil(conf.data.length / conf.elemPerPage);
+      if (conf.pageNo >= pageCount && conf.data !== null && conf.data.length > 0) {
+        return conf.data.slice((conf.pageNo - 1) * conf.elemPerPage, conf.elemPerPage + conf.pageNo);
+      } else {
+        return null;
+      }
+    } else {
+      return [conf.data];
+    }
+  }
+  /**
   * injectData - Format & inject data into templDoc.
   * @param  {Array<DocumentFragment>} templDocs  The unpopulated template DocumentFragments.
   * @param  {Object} conf                        Configuration.
@@ -283,55 +301,44 @@ var cdaTemplate = (function () {
   */
   function injectData(templDocs, conf) {
     var preparedDoc = document.createDocumentFragment();
+    const dataQueue = getData(conf);
     if (templDocs.length > 0) {
-      // Paginate the data
-      if (conf.paged) {
-        // We can safely assume `conf.data` is an Array at this point, as it gets checked in the public interface.
-        var pages = Math.ceil(conf.data.length / conf.elemPerPage);
-        if (conf.pageNo >= pages && conf.data !== null && conf.data.length > 0) {
-          // TODO: Test this!
-          var dataQueue = conf.data.slice((conf.pageNo - 1) * conf.elemPerPage, conf.elemPerPage + conf.pageNo);
-        } else {
-          var dataQueue = null;
-        }
-      } else {
-        var dataQueue = [conf.data];
-      }
       // Iterate the templates and data, for data injection
       _iterTemplates: for (var loc = 0; loc < templDocs.length; loc++) {
-        var templDoc = templDocs[loc];
+        const templDoc = templDocs[loc];
         if (dataQueue !== null && loc < dataQueue.length) {
           var curData = dataQueue[loc];
         } else {
           var curData = null;
+        }
+        if (curData === null) {
+          continue;
         }
         if (!templDoc.hasChildNodes()) {
           continue;
         }
         // Iterate the data injectors and look for them in the `templDoc`
         _iterAttributes: for (var dataAttr in conf.injectors) {
-          if (curData !== null) {
-            var dataNodes = templDoc.querySelectorAll("[" + dataAttr + "]");
-            if (dataNodes.length === 0) {
-              continue;
+          const dataNodes = templDoc.querySelectorAll("[" + dataAttr + "]");
+          if (dataNodes.length === 0) {
+            continue;
+          }
+          for (var dataNode of dataNodes.values()) {
+            // NOTE: For non-existent attrs, `getAttribute` may return `null` OR an empty string, depending on DOM Core.
+            // Get data formatter attribute.
+            const formatTag = dataNode.getAttribute(dataAttr + "-format");
+            if (formatTag !== null && formatTag !== "" && formatTag in conf.formatters) {
+              // Format data.
+              curData = conf.formatters[formatTag](curData);
             }
-            for (var dataNode of dataNodes.values()) {
-              // NOTE: For non-existent attrs, `getAttribute` may return `null` OR an empty string, depending on DOM Core.
-              // Get data formatter attribute.
-              var formatTag = dataNode.getAttribute(dataAttr + "-format");
-              if (formatTag !== null && formatTag !== "" && formatTag in conf.formatters) {
-                // Format data.
-                curData = conf.formatters[formatTag](curData);
+            // Get data injection attribute.
+            const templTag = dataNode.getAttribute(dataAttr);
+            if (templTag !== null && templTag !== "" && templTag in curData) {
+              if (conf.removeAttr) {
+                dataNode.removeAttribute(dataAttr);
               }
-              // Get data injection attribute.
-              var templTag = dataNode.getAttribute(dataAttr);
-              if (templTag !== null && templTag !== "" && templTag in curData) {
-                if (conf.removeAttr) {
-                  dataNode.removeAttribute(dataAttr);
-                }
-                // Inject data.
-                conf.injectors[dataAttr](curData[templTag], dataNode);
-              }
+              // Inject data.
+              conf.injectors[dataAttr](curData[templTag], dataNode);
             }
           }
         }
@@ -356,7 +363,7 @@ var cdaTemplate = (function () {
       var destElems = document.querySelectorAll(destSel);
       assert(destElems !== null && destElems.length > 0, "Template Destination \"" + destSel + "\" not found.", Error);
     } else {
-      var destElems = document.querySelector(destSel);
+      var destElems = [document.querySelector(destSel)];
       assert(destElems !== null, "Template Destination \"" + destSel + "\" not found.", Error);
     }
     return destElems;
@@ -475,88 +482,88 @@ var cdaTemplate = (function () {
   //+---------------------------+
   //| Public Interface          |
   //+---------------------------+
-  function _constructor(conf = {}) {
+  function _interface(conf = {}) {
     assertObject(conf, 1);
     this.conf = Object.assign({}, newConfiguration(), conf);
-    /**
-    * addInjector - Adds a custom Data Injection Attriute and node-mutating callback.
-    *   The `data` prefix is automatically added if it is missing.
-    * @param  {String} name                The name of the attribute, with or without a `data` prefix.
-    * @param  {injectorCallback} callback  The injector callback to run. Accepts two parameters, `input` and `target`.
-      * @callback injectorCallback         This callback can mutate `target` directly, via the DOM API.
-      * @param {Mixed} input               A value to be injected into `target`.
-      * @param {Node} target               The target Node to inject `input` into.
-    */
-    this.addInjector = function (name, callback) {
-      assertString(name, 1);
-      assertFunction(callback, 2);
-      this.conf.attributes[dataAttr(name)] = callback;
-    };
-    /**
-    * addFormatter - Adds a Formatter callback to the config object.
-    *   It should not attempt to mutate the `value` parameter directly.
-    * @param  {String} name                 Name of the formatter.
-    * @param  {formatterCallback} callback  The formatter callback, accepts one "value" parameter.
-      * @callback formatterCallback
-      * @param {Mixed} value                Data to be formatted.
-      * @return {Mixed}                     The formatted Data.
-    */
-    this.addFormatter = function (name, callback) {
-      assertString(name, 1);
-      assertFunction(callback, 2);
-      this.conf.formatters[name] = callback;
-    };
-    /**
-    * loadTemplate - Load a clone of template `templSel`, inject it with data, and insert it into `destSel`.
-    *   Synchronous; returns the inserted Template.
-    * @param  {String} templSel      Template QuerySelector.
-    * @param  {String} destSel       Destination QuerySelector.
-    * @param  {Object} conf = {}     Configuration.
-    * @return {Array<Node>|Promise}  An array of inserted template Nodes, or a Promise which resolves with that.
-    */
-    this.loadTemplate = function (templSel, destSel, conf = {}) {
-      assertString(templSel, 1);
-      assertString(destSel, 2);
-      assertObject(conf, 3);
-      if (conf.data !== null) {
-        if (conf.paged) {
-          assertArray(conf.data, "configuration.data (When `paged` is set to `true`)");
-        } else {
-          assertObject(conf.data, "configuration.data (When `paged` is set to `false`)");
-        }
-      }
-      var runConf = Object.assign({}, this.conf, { injectors: _injectors }, conf);
-      if (runConf.isFile || !runConf.async) {
-        // If `isFile` is set to `true`, this should return a Promise. Otherwise, an array of inserted live template Nodes.
-        return loadTemplate(templSel, destSel, runConf);
-      } else if (runConf.async) {
-        return Promise.resolve(loadTemplate(tempSel, destSel, runConf));
-      }
-    };
-    /**
-    * loadTemplateAsync - Load a Template in a Promise.
-    *   Asynchronous; returns a Promise Resolved with the inserted Template.
-    * @param  {String} templSel   Template QuerySelector.
-    * @param  {String} destSel    Destination QuerySelector.
-    * @param  {Object} conf = {}  Configuration.
-    * @return {Promise}           Resolves with an Array of live inserted template Nodes.
-    */
-    this.loadTemplateAsync = function (templSel, destSel, conf = {}) {
-      assertObject(conf, 3);
-      return this.loadTemplate(templSel, destSel, Object.assign({}, { async: true }, conf));
-    };
-    /**
-    * loadTemplateXhr - Load a Template with Ajax.
-    *   Asynchronous; returns a Promise Resolved with the inserted Template.
-    * @param  {String} url        Template URL/URI.
-    * @param  {String} destSel    Destination QuerySelector.
-    * @param  {Object} conf = {}  Configuration.
-    * @return {Promise}           Resolves with an Array of live inserted template Nodes.
-    */
-    this.loadTemplateXhr = function (url, destSel, conf = {}) {
-      assertObject(conf, 3);
-      return this.loadTemplate(url, destSel, Object.assign({}, { isFile: true }, conf));
-    };
   }
-  return _constructor;
+  /**
+  * addInjector - Adds a custom Data Injection Attriute and node-mutating callback.
+  *   The `data` prefix is automatically added if it is missing.
+  * @param  {String} name                The name of the attribute, with or without a `data` prefix.
+  * @param  {injectorCallback} callback  The injector callback to run. Accepts two parameters, `input` and `target`.
+    * @callback injectorCallback         This callback can mutate `target` directly, via the DOM API.
+    * @param {Mixed} input               A value to be injected into `target`.
+    * @param {Node} target               The target Node to inject `input` into.
+  */
+  _interface.prototype.addInjector = function (name, callback) {
+    assertString(name, 1);
+    assertFunction(callback, 2);
+    this.conf.injectors[dataAttr(name)] = callback;
+  };
+  /**
+  * addFormatter - Adds a Formatter callback to the config object.
+  *   It should not attempt to mutate the `value` parameter directly.
+  * @param  {String} name                 Name of the formatter.
+  * @param  {formatterCallback} callback  The formatter callback, accepts one "value" parameter.
+    * @callback formatterCallback
+    * @param {Mixed} value                Data to be formatted.
+    * @return {Mixed}                     The formatted Data.
+  */
+  _interface.prototype.addFormatter = function (name, callback) {
+    assertString(name, 1);
+    assertFunction(callback, 2);
+    this.conf.formatters[name] = callback;
+  };
+  /**
+  * loadTemplate - Load a clone of template `templSel`, inject it with data, and insert it into `destSel`.
+  *   Synchronous; returns the inserted Template.
+  * @param  {String} templSel      Template QuerySelector.
+  * @param  {String} destSel       Destination QuerySelector.
+  * @param  {Object} conf = {}     Configuration.
+  * @return {Array<Node>|Promise}  An array of inserted template Nodes, or a Promise which resolves with that.
+  */
+  _interface.prototype.loadTemplate = function (templSel, destSel, conf = {}) {
+    assertString(templSel, 1);
+    assertString(destSel, 2);
+    assertObject(conf, 3);
+    if (conf.data !== null) {
+      if (conf.paged) {
+        assertArray(conf.data, "configuration.data (When `paged` is set to `true`)");
+      } else {
+        assertObject(conf.data, "configuration.data (When `paged` is set to `false`)");
+      }
+    }
+    const runConf = Object.assign({}, this.conf, { injectors: _injectors }, conf);
+    if (runConf.isFile || !runConf.async) {
+      // If `isFile` is set to `true`, this should return a Promise. Otherwise, an array of inserted live template Nodes.
+      return loadTemplate(templSel, destSel, runConf);
+    } else if (runConf.async) {
+      return Promise.resolve(loadTemplate(tempSel, destSel, runConf));
+    }
+  };
+  /**
+  * loadTemplateAsync - Load a Template in a Promise.
+  *   Asynchronous; returns a Promise Resolved with the inserted Template.
+  * @param  {String} templSel   Template QuerySelector.
+  * @param  {String} destSel    Destination QuerySelector.
+  * @param  {Object} conf = {}  Configuration.
+  * @return {Promise}           Resolves with an Array of live inserted template Nodes.
+  */
+  _interface.prototype.loadTemplateAsync = function (templSel, destSel, conf = {}) {
+    assertObject(conf, 3);
+    return this.loadTemplate(templSel, destSel, Object.assign({}, conf, { async: true }));
+  };
+  /**
+  * loadTemplateXhr - Load a Template with Ajax.
+  *   Asynchronous; returns a Promise Resolved with the inserted Template.
+  * @param  {String} url        Template URL/URI.
+  * @param  {String} destSel    Destination QuerySelector.
+  * @param  {Object} conf = {}  Configuration.
+  * @return {Promise}           Resolves with an Array of live inserted template Nodes.
+  */
+  _interface.prototype.loadTemplateXhr = function (url, destSel, conf = {}) {
+    assertObject(conf, 3);
+    return this.loadTemplate(url, destSel, Object.assign({}, conf, { isFile: true }));
+  };
+  return _interface;
 })();
