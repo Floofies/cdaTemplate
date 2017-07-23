@@ -103,7 +103,7 @@ var cdaTemplate = (function () {
   * @param  {Mixed} data = null        Data to send to the server.
   * @return {Promise}                  Resolved with response or Rejected with error.
   */
-  function ajax(url = "/", resType = "text", data = null) {
+  function ajax(url = "/") {
     return new Promise(function (resolve, reject) {
       var req = new XMLHttpRequest();
       req.onreadystatechange = function () {
@@ -116,9 +116,9 @@ var cdaTemplate = (function () {
         }
       };
       req.open("GET", url);
-      req.responseType = resType;
+      req.responseType = "text";
       req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      req.send(data);
+      req.send();
     });
   }
   // For empty callback parameters
@@ -375,10 +375,8 @@ var cdaTemplate = (function () {
   * @param  {Object} conf      Configuration.
   * @return {Promise}          Resolves with Template DocumentFragment.
   */
-  function getTemplateXHR(templUrl, destElems, conf) {
-    return conf.ajax(templUrl, "text").then(function (html) {
-      return newFramgmentParse(html);
-    });
+  function getTemplateXHR(templUrl, conf) {
+    return conf.ajax(templUrl).then(tagString => newFramgmentParse(tagString));
   }
   /**
   * getTemplateDOM - Get template from a DOM node.

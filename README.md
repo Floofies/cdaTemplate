@@ -355,7 +355,7 @@ Several options are available for use in the `options` object.
 Option|DataType|Default|Description
 ---|---|---|---
 `async`|Boolean|`false`|If `true`, `loadTemplate` will return a Promise. (Same as running `loadTemplateAsync`)
-`ajax`|Function|Built-In|The XHR function to retrieve templates through. Must return a Promise which resolves with the template DOMString.
+`ajax`|Function|Built-In|The XHR function to retrieve remote templates. Must accept a URL as a paremeter, and return a Promise which resolves with the template DOMString.
 `append`|Boolean|`false`|Appends the children of the destination element with the template.
 `afterInsert`|Function|No-Op|The Callback to execute after inserting the template.
 `beforeInsert`|Function|No-Op|The Callback to execute before inserting the template.
