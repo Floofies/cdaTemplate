@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<script type="text/javascript" src="cdaTemplate.js"></script>
+		<script type="text/javascript">
+		window.addEventListener("load", function () {
+			var ct = new cdaTemplate();
+			ct.loadTemplate("#testTemplate", "#testDestination", {
+				data: {
+					"alt": "This is an alt string.",
+					"class": "This is a class string.",
+					"content": "<h1>This is a content string.</h1>",
+					"content-append": "<h1>This is a content string.</h1>",
+					"content-prepend": "<h1>This is a content string.</h1>",
+					"content-text": "This is a content text string.",
+					"content-text-append": "This is a content text string.",
+					"content-text-prepend": "This is a content text string.",
+					"for": "This is a for string.",
+					"href": "This is an href string.",
+					"id": "This is an id string",
+					"link": "This is a link string",
+					"link-wrap": "This is a link wrap string",
+					"style": "This is a style string",
+					"value": "This is a value string"
+				}
+			});
+		});
+		</script>
+	</head>
+	<body>
+		<script type="text/html" id="testTemplate">
+			<div id="alt" data-alt="alt"></div>
+			<div id="class" data-class="class"></div>
+			<div id="content" data-content="content">I should get replaced.</div>
+			<div id="content-append" data-content-append="content-append">I should be appended to.</div>
+			<div id="content-prepend" data-content-prepend="content-prepend">I should be prepended to.</div>
+			<div id="content-text" data-content-text="content-text">I should be replaced.</div>
+			<div id="content-text-append" data-content-text-append="content-text-append">I should be appended to.</div>
+			<div id="content-text-prepend" data-content-text-prepend="content-text-prepend">I should be prepended to.</div>
+			<div id="for" data-for="for"></div>
+			<div id="href" data-href="href"></div>
+			<div id="id" data-id="id"></div>
+			<div id="link" data-link="link"></div>
+			<div id="link-wrap" data-link-wrap="link-wrap"></div>
+			<div id="style" data-style="style"></div>
+			<div id="value" data-value="value"></div>
+		</script>
+		<div id="testDestination"></div>
+	</body>
+</html>

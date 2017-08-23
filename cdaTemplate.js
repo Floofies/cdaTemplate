@@ -47,7 +47,7 @@ var cdaTemplate = (function () {
     },
     // 	Sets the `for` attribute of the element.
     "data-for": function (input, target) {
-      target.setAttribute("id", input);
+      target.setAttribute("for", input);
     },
     // Sets the `href` attribute of the element.
     "data-href": function (input, target) {
@@ -84,18 +84,6 @@ var cdaTemplate = (function () {
   //+---------------------------+
   //| Generic Utility Functions |
   //+---------------------------+
-  // `Array.values()` Polyfill
-  // Returns a new Array Iterator object that contains the values for each index in the array.
-  if (!Array.prototype.hasOwnProperty("values")) {
-    Object.defineProperty(Array.prototype, "values", {
-      enumerable: false,
-      value: function* () {
-        for (var value of this) {
-          yield value;
-        }
-      }
-    });
-  }
   /**
   * ajax - A Promise wrapper for XMLHttpRequest
   * @param  {String} url = "/"         A web address, URL or URI.
@@ -134,7 +122,7 @@ var cdaTemplate = (function () {
   */
   function assert(boolean, message, errorType = null) {
     if (!boolean) {
-      if (errorType !== null && errorType instanceof Error) {
+      if (errorType !== null && (errorType === Error || Error.isPrototypeOf(errorType))) {
         throw new errorType(message);
       } else {
         console.error(message);
@@ -142,20 +130,27 @@ var cdaTemplate = (function () {
     }
   }
   // Thunks to `assert` for method argument type checking.
-  function assertArgType(boolean, typeString, argName) {
-    assert(boolean, "Argument " + argName + " must be " + typeString, TypeError);
+  assert.argType = (boolean, typeString, argName) => assert(boolean, "Argument " + argName + " must be " + typeString, TypeError);
+  assert.string = (input, argName) => assert.argType(typeof input === "string", "a String", argName);
+  assert.function = (input, argName) => assert.argType(typeof input === "function", "a Function", argName);
+  assert.object = (input, argName) => assert.argType(isObject(input), "an Object", argName);
+  assert.array = (input, argName) => assert.argType(Array.isArray(input), "an Array", argName);
+  assert.container = (input, argName) => assert.argType(isContainer(input), "an Object or Array", argName);
+    /**
+   * isContainer - Returns `true` if `input` is an Object or Array, otherwise returns `false`.
+   * @param {any} input
+   * @returns {Boolean}
+   */
+  function isContainer(input) {
+    return (input !== null && (isObject(input) || Array.isArray(input)));
   }
-  function assertString(input, argName) {
-    assertArgType(typeof input === "string", "a String", argName);
-  }
-  function assertFunction(input, argName) {
-    assertArgType(typeof input === "function", "a Function", argName);
-  }
-  function assertObject(input, argName) {
-    assertArgType(typeof input === "object" && !Array.isArray(input), "an Object", argName);
-  }
-  function assertArray(input, argName) {
-    assertArgType(Array.isArray(input), "an Array", argName);
+  /**
+   * isObject - Returns `true` if `input` is an Object and not an Array, or `false` if otherwise.
+   * @param {any} input
+   * @returns {Boolean}
+   */
+  function isObject(input) {
+    return (input !== null && typeof (input) === "object" && !Array.isArray(input));
   }
   /**
   * dataAttr - Returns a W3C valid Data Attribute Name based on `string`.
@@ -239,7 +234,7 @@ var cdaTemplate = (function () {
     if (templDoc.hasChildNodes()) {
       let errorStatus = false;
       // Iterate through the destinations for insertion
-      for (var destElem of destElems.values()) {
+      for (var destElem of (Array.isArray(destElems) ? destElems[Symbol.iterator]() : destElems.values())) {
         console.log(destElem);
         let liveTmpl = false;
         if (conf.prepend) {
@@ -481,7 +476,7 @@ var cdaTemplate = (function () {
   //| Public Interface          |
   //+---------------------------+
   function _interface(conf = {}) {
-    assertObject(conf, 1);
+    assert.object(conf, 1);
     this.conf = Object.assign({}, newConfiguration(), conf);
   }
   /**
@@ -494,8 +489,8 @@ var cdaTemplate = (function () {
     * @param {Node} target               The target Node to inject `input` into.
   */
   _interface.prototype.addInjector = function (name, callback) {
-    assertString(name, 1);
-    assertFunction(callback, 2);
+    assert.string(name, 1);
+    assert.function(callback, 2);
     this.conf.injectors[dataAttr(name)] = callback;
   };
   /**
@@ -508,8 +503,8 @@ var cdaTemplate = (function () {
     * @return {Mixed}                     The formatted Data.
   */
   _interface.prototype.addFormatter = function (name, callback) {
-    assertString(name, 1);
-    assertFunction(callback, 2);
+    assert.string(name, 1);
+    assert.function(callback, 2);
     this.conf.formatters[name] = callback;
   };
   /**
@@ -521,14 +516,14 @@ var cdaTemplate = (function () {
   * @return {Array<Node>|Promise}  An array of inserted template Nodes, or a Promise which resolves with that.
   */
   _interface.prototype.loadTemplate = function (templSel, destSel, conf = {}) {
-    assertString(templSel, 1);
-    assertString(destSel, 2);
-    assertObject(conf, 3);
+    assert.string(templSel, 1);
+    assert.string(destSel, 2);
+    assert.object(conf, 3);
     if (conf.data !== null) {
       if (conf.paged) {
-        assertArray(conf.data, "configuration.data (When `paged` is set to `true`)");
+        assert.array(conf.data, "configuration.data (When `paged` is set to `true`)");
       } else {
-        assertObject(conf.data, "configuration.data (When `paged` is set to `false`)");
+        assert.object(conf.data, "configuration.data (When `paged` is set to `false`)");
       }
     }
     const runConf = Object.assign({}, this.conf, { injectors: _injectors }, conf);
@@ -548,7 +543,7 @@ var cdaTemplate = (function () {
   * @return {Promise}           Resolves with an Array of live inserted template Nodes.
   */
   _interface.prototype.loadTemplateAsync = function (templSel, destSel, conf = {}) {
-    assertObject(conf, 3);
+    assert.object(conf, 3);
     return this.loadTemplate(templSel, destSel, Object.assign({}, conf, { async: true }));
   };
   /**
@@ -560,7 +555,7 @@ var cdaTemplate = (function () {
   * @return {Promise}           Resolves with an Array of live inserted template Nodes.
   */
   _interface.prototype.loadTemplateXhr = function (url, destSel, conf = {}) {
-    assertObject(conf, 3);
+    assert.object(conf, 3);
     return this.loadTemplate(url, destSel, Object.assign({}, conf, { isFile: true }));
   };
   return _interface;
