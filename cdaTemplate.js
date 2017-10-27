@@ -111,7 +111,6 @@ var cdaTemplate = (function () {
   }
   // For empty callback parameters
   const _noOp = () => { };
-  const _identity = argument => argument;
   /**
   * assert - Logs or throws an Error if `boolean` is false,
   *  If `boolean` is `true`, nothing happens.
@@ -136,19 +135,19 @@ var cdaTemplate = (function () {
   assert.object = (input, argName) => assert.argType(isObject(input), "an Object", argName);
   assert.array = (input, argName) => assert.argType(Array.isArray(input), "an Array", argName);
   assert.container = (input, argName) => assert.argType(isContainer(input), "an Object or Array", argName);
-    /**
-   * isContainer - Returns `true` if `input` is an Object or Array, otherwise returns `false`.
-   * @param {any} input
-   * @returns {Boolean}
-   */
+  /**
+  * isContainer - Returns `true` if `input` is an Object or Array, otherwise returns `false`.
+  * @param {any} input
+  * @returns {Boolean}
+  */
   function isContainer(input) {
     return (input !== null && (isObject(input) || Array.isArray(input)));
   }
   /**
-   * isObject - Returns `true` if `input` is an Object and not an Array, or `false` if otherwise.
-   * @param {any} input
-   * @returns {Boolean}
-   */
+  * isObject - Returns `true` if `input` is an Object and not an Array, or `false` if otherwise.
+  * @param {any} input
+  * @returns {Boolean}
+  */
   function isObject(input) {
     return (input !== null && typeof (input) === "object" && !Array.isArray(input));
   }
@@ -270,10 +269,10 @@ var cdaTemplate = (function () {
     return insertedTemplates;
   }
   /**
-* getData - Get relevant data to the current template load.
-* @param  {Object} conf  Configuration.
-* @return {Array}        An ordered queue of data to inject into templates.
-*/
+  * getData - Get relevant data to the current template load.
+  * @param  {Object} conf  Configuration.
+  * @return {Array}        An ordered queue of data to inject into templates.
+  */
   function getData(conf) {
     // Paginate data
     if (conf.paged) {
@@ -461,7 +460,7 @@ var cdaTemplate = (function () {
       error: false,
       errorMessage: "There was an error loading the template.",
       formatters: {},
-      injectors: {},
+      injectors: Object.assign({}, _injectors),
       isFile: false,
       multiDest: false,
       overwriteCache: false,
@@ -526,7 +525,7 @@ var cdaTemplate = (function () {
         assert.object(conf.data, "configuration.data (When `paged` is set to `false`)");
       }
     }
-    const runConf = Object.assign({}, this.conf, { injectors: _injectors }, conf);
+    const runConf = Object.assign({}, this.conf, conf);
     if (runConf.isFile || !runConf.async) {
       // If `isFile` is set to `true`, this should return a Promise. Otherwise, an array of inserted live template Nodes.
       return loadTemplate(templSel, destSel, runConf);
