@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Jasmine Spec Runner v2.6.1</title>
+	<link rel="shortcut icon" type="image/png" href="jasmine/jasmine_favicon.png">
+	<link rel="stylesheet" href="jasmine/jasmine.css">
+</head>
+<body>
+	<script type="text/html" id="alt-test">
+		<div id="alt" data-alt="alt"></div>
+	</script>
+	<script type="text/html" id="class-test">
+		<div id="class" data-class="class"></div>
+	</script>
+	<script type="text/html" id="content-test">
+		<div id="content" data-content="content">I should get replaced.</div>
+	</script>
+	<script type="text/html" id="content-append-test">
+		<div id="content-append" data-content-append="content-append">I should be appended to.</div>
+	</script>
+	<script type="text/html" id="content-prepend-test">
+		<div id="content-prepend" data-content-prepend="content-prepend">I should be prepended to.</div>
+	</script>
+	<script type="text/html" id="content-text-test">
+		<div id="content-text" data-content-text="content-text">I should be replaced.</div>
+	</script>
+	<script type="text/html" id="content-text-append-test">
+		<div id="content-text-append" data-content-text-append="content-text-append">I should be appended to.</div>
+	</script>
+	<script type="text/html" id="content-text-prepend-test">
+		<div id="content-text-prepend" data-content-text-prepend="content-text-prepend">I should be prepended to.</div>
+	</script>
+	<script type="text/html" id="for-test">
+		<div id="for" data-for="for"></div>
+	</script>
+	<script type="text/html" id="href-test">
+		<div id="href" data-href="href"></div>
+	</script>
+	<script type="text/html" id="id-test">
+		<div id="id" data-id="id"></div>
+	</script>
+	<script type="text/html" id="link-test">
+		<div id="link" data-link="link"></div>
+	</script>
+	<script type="text/html" id="link-wrap-test">
+		<div id="link-wrap" data-link-wrap="link-wrap"></div>
+	</script>
+	<script type="text/html" id="style-test">
+		<div id="style" data-style="style"></div>
+	</script>
+	<script type="text/html" id="value-test">
+		<div id="value" data-value="value"></div>
+	</script>
+	<script type="text/html" id="formatter-test">
+		<div id="formatter" data-content-text="content" data-content-text-format="myFormatter"></div>
+	</script>
+	<div style="display:none;" id="testDestination"></div>
+
+	<script src="jasmine/jasmine.js"></script>
+	<script src="jasmine/jasmine-html.js"></script>
+	<script src="jasmine/boot.js"></script>
+
+	<!-- include source files here... -->
+	<script src="cdaTemplate.js"></script>
+
+	<!-- include spec files here... -->
+	<script src="spec/Spec.js"></script>
+</body>
+</html>
